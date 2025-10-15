@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from automata import AFND
+from automata import AFND, SpecialSymbol
 
 __all__ = [
     "RegEx",
@@ -50,7 +50,11 @@ class Empty(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        raise NotImplementedError
+        afnd = AFND()
+        afnd.add_state("q0", False)
+        afnd.add_state("q1", True)
+        afnd.mark_initial_state("q0")
+        return afnd
 
     def _atomic(self):
         return True
@@ -66,7 +70,10 @@ class Lambda(RegEx):
         return word == ""
 
     def to_afnd(self) -> AFND:
-        raise NotImplementedError
+        afnd = AFND()
+        afnd.add_state("q0", True)
+        afnd.mark_initial_state("q0")
+        return afnd
 
     def _atomic(self):
         return True
@@ -86,7 +93,12 @@ class Char(RegEx):
         return word == self.char
 
     def to_afnd(self) -> AFND:
-        raise NotImplementedError
+        afnd = AFND()
+        afnd.add_state("q0", False)
+        afnd.add_state("q1", True)
+        afnd.mark_initial_state("q0")
+        afnd.add_transition("q0", "q1", self.char)
+        return afnd
 
     def _atomic(self):
         return True
@@ -109,7 +121,23 @@ class Concat(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        raise NotImplementedError
+        afnd1 = self.exp1.to_afnd()
+        afnd2 = self.exp2.to_afnd()
+
+        afnd2.rename_states()
+        afnd1.states.union(afnd2.state)
+        afnd1.final_states = afnd2.final_states
+        
+        # afnd1.transitions = afnd1.transitions | afnd2.transitions
+
+        for state in self.transitions:
+            for char in self.transitions[state]:
+                for otherState in self.transition[state][char]:
+                    afnd1.add_transition(state, otherState, char)
+        
+        afnd1.addTransition(list(afnd1.final_states)[0], afnd2.initial_state, SpecialSymbol.Lambda)
+
+        return afnd1
 
     def _atomic(self):
         return False
