@@ -125,17 +125,19 @@ class Concat(RegEx):
         afnd2 = self.exp2.to_afnd()
 
         afnd2.rename_states()
-        afnd1.states.union(afnd2.state)
+        afnd1.states.union(afnd2.states)
         afnd1.final_states = afnd2.final_states
         
         # afnd1.transitions = afnd1.transitions | afnd2.transitions
 
-        for state in self.transitions:
-            for char in self.transitions[state]:
-                for otherState in self.transition[state][char]:
+        for state in afnd2.transitions:
+            for char in afnd2.transitions[state]:
+                for otherState in afnd2.transitions[state][char]:
                     afnd1.add_transition(state, otherState, char)
         
-        afnd1.addTransition(list(afnd1.final_states)[0], afnd2.initial_state, SpecialSymbol.Lambda)
+        afnd1.add_transition(list(afnd1.final_states)[0], afnd2.initial_state, SpecialSymbol.Lambda)
+
+        afnd1.normalize_states()
 
         return afnd1
 
