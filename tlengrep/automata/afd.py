@@ -16,6 +16,12 @@ class AFD(AF):
         self.transitions[state1][char] = state2
         self.alphabet.add(char)
 
+    def add_set_as_state(self, stateSet, isFinal):
+        setString = ''.join(stateSet)
+        if not (setString in self.states):
+            self.add_state(setString, isFinal)
+        return setString
+
     def minimize(self):
         """Minimiza el autómata."""
         raise NotImplementedError
