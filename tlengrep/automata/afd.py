@@ -24,17 +24,42 @@ class AFD(AF):
 
     def minimize(self):
         """Minimiza el autómata."""
+        accesible = set()
+        accesible.add(self.initial_state)
+        new = set()
+        new.add(self.initial_state)
+        while len(new) != 0:
+            temp = set()
+            for q in new:
+                for c in self.alphabet:
+                    if c in self.transitions[q]:
+                        temp.add(self.transitions[q][c])
+            new = temp.difference(accesible)
+            accesible = accesible.union(new)   
+                    
+        afd_accessible = AFD()
+        afd_accessible.states = accesible
+        afd_accessible.initial_state = self.initial_state
+        afd_accessible.final_states = self.final_states.intersection(accesible)
+
+        for state in accesible:
+            for char in self.alphabet:
+                if state in self.transitions and char in self.transitions[state]:
+                    otherState = self.transitions[state][char]
+                    if otherState in accesible:
+                        afd_accessible.add_transition(state, otherState, char)
+
         P = set(frozenset())
-        P.add(frozenset(self.final_states))
-        P.add(frozenset(self.states.difference(self.final_states)))
-        W = [self.final_states]
+        P.add(frozenset(afd_accessible.final_states))
+        P.add(frozenset(afd_accessible.states.difference(afd_accessible.final_states)))
+        W = [afd_accessible.final_states]
 
         while len(W) != 0:
             A = W.pop()
-            for c in self.alphabet:
+            for c in afd_accessible.alphabet:
                 X = set()
-                for state in self.transitions:
-                    if c in self.transitions[state] and self.transitions[state][c] in A:
+                for state in afd_accessible.transitions:
+                    if c in afd_accessible.transitions[state] and afd_accessible.transitions[state][c] in A:
                         X.add(state)
                 X = frozenset(X)
 
@@ -54,13 +79,15 @@ class AFD(AF):
                             else:
                                 W.append(Y.difference(X))
 
+        P.remove(set())
+
         afdmin = AFD()
         afdmin.states = P
 
         for partition in P:
             for state in partition:
-                for char in self.alphabet:
-                    comingState = self.transitions[state][char]
+                for char in afd_accessible.alphabet:
+                    comingState = afd_accessible.transitions[state][char]
                     for otherPartition in P:
                         if comingState in otherPartition:
                             afdmin.add_transition(partition, otherPartition, char)
@@ -73,15 +100,14 @@ class AFD(AF):
 
         for partition in P:
             for state in partition:
-                if state in self.final_states:
+                if state in afd_accessible.final_states:
                     afdmin.final_states.add(partition)
                     break
 
-        afdmin.normalize_states()
         return afdmin
 
     def match(self, word: str) -> bool:
-        return self.match_from(self, self.initial_state, word)
+        return self.match_from(self.initial_state, word)
 
     def match_from(self, state: str, word: str) -> bool:
         if len(word) == 0:

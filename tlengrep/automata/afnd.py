@@ -35,8 +35,9 @@ class AFND(AF):
         accessible_states = set()
         accessible_states.add(state)
 
-        for new_state in self.transitions[state][SpecialSymbol.Lambda]:
-            self.lambda_closure(new_state)
+        if SpecialSymbol.Lambda in self.transitions[state]:
+            for new_state in self.transitions[state][SpecialSymbol.Lambda]:
+                self.lambda_closure(new_state)
 
         return accessible_states
 
