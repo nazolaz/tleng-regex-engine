@@ -76,7 +76,7 @@ class AFND(AF):
             visited.append(T)
             for char in self.alphabet:
                 U = self.move(T, char)
-                if U in Qp and not (U in visited):
+                if not(U in Qp) and not (U in visited):
                     Qp.append(U)
 
                 afd.add_transition(
