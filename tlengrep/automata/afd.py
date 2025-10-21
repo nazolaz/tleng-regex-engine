@@ -24,7 +24,71 @@ class AFD(AF):
 
     def minimize(self):
         """Minimiza el autómata."""
-        raise NotImplementedError
+        P = set(frozenset())
+        P.add(frozenset(self.final_states))
+        P.add(frozenset(self.states.difference(self.final_states)))
+        W = [self.final_states]
+
+        while len(W) != 0:
+            A = W.pop()
+            for c in self.alphabet:
+                X = set()
+                for state in self.transitions:
+                    if c in self.transitions[state] and self.transitions[state][c] in A:
+                        X.add(state)
+                X = frozenset(X)
+
+                for Y in P:
+                    if len(X.intersection(Y)) != 0 and len(Y.difference(X)) != 0:
+                        P.remove(Y)
+                        P.add(X.intersection(Y))
+                        P.add(Y.difference(X))
+
+                        if Y in W:
+                            P.remove(Y)
+                            P.add(X.intersection(Y))
+                            P.add(Y.difference(X))
+                        else:
+                            if len(X.intersection(Y)) <= len(Y.difference(X)):
+                                W.append(X.intersection(Y))
+                            else:
+                                W.append(Y.difference(X))
+
+        afdmin = AFD()
+        afdmin.states = P
+
+        for partition in P:
+            for state in partition:
+                for char in self.alphabet:
+                    comingState = self.transitions[state][char]
+                    for otherPartition in P:
+                        if comingState in otherPartition:
+                            afdmin.add_transition(partition, otherPartition, char)
+                            break # las particiones son disjuntas
+        
+        for partition in P:
+            if "q0" in partition:
+                afdmin.initial_state = partition
+                break
+
+        for partition in P:
+            for state in partition:
+                if state in self.final_states:
+                    afdmin.final_states.add(partition)
+                    break
+
+        afdmin.normalize_states()
+        return afdmin
+
+    def match(self, word: str) -> bool:
+        return self.match_from(self, self.initial_state, word)
+
+    def match_from(self, state: str, word: str) -> bool:
+        if len(word) == 0:
+            return state in self.final_states
+        if word[0] in self.transitions[state]:
+            return self.match_from(self.transitions[state][word[0]], word[1:])
+        return False
 
     def _rename_state_in_transitions(self, old_name: Hashable, new_name: Hashable):
         """Renombra un estado dentro de las transiciones del autómata."""
@@ -48,3 +112,4 @@ class AFD(AF):
             else:
                 transitions[char] = "-"
         return transitions
+        

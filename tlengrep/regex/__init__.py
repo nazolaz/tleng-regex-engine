@@ -27,7 +27,7 @@ class RegEx(ABC):
 
     def match(self, word: str) -> bool:
         """Indica si la expresión regular acepta la cadena dada."""
-        raise NotImplementedError
+        self.to_afnd().determinize().minimize()
 
     @abstractmethod
     def to_afnd(self) -> AFND:

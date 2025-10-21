@@ -61,7 +61,7 @@ class AFND(AF):
         """Determiniza el autómata."""
         afd = AFD()
         nuevoInicial = self.lambda_closure_palo(self.initial_state)
-        strInicial = afd.add_set_as_state(nuevoInicial, len(T.intersection(self.final_states)) == 0)
+        strInicial = afd.add_set_as_state(nuevoInicial, len(nuevoInicial.intersection(self.final_states)) == 0)
         afd.mark_initial_state(strInicial)
 
         Qp = [nuevoInicial]
