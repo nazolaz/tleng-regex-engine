@@ -16,7 +16,6 @@ __all__ = [
 
 class RegEx(ABC):
     """Clase abstracta para representar expresiones regulares."""
-
     @abstractmethod
     def naive_match(self, word: str) -> bool:
         """
@@ -123,22 +122,31 @@ class Concat(RegEx):
     def to_afnd(self) -> AFND:
         afnd1 = self.exp1.to_afnd()
         afnd2 = self.exp2.to_afnd()
-
         afnd2.rename_states()
+        
+        afnd = AFND()
+        for state in afnd1.states:
+            afnd.add_state(state, False)
+
+        for state in afnd1.transitions:
+            for char in afnd1.transitions[state]:
+                for otherState in afnd1.transitions[state][char]:
+                    afnd.add_transition(state, otherState, char)
 
         for state in afnd2.states:
-            afnd1.add_state(state, state in afnd2.final_states)
+            afnd.add_state(state, state in afnd2.final_states) # n^2
 
         for state in afnd2.transitions:
             for char in afnd2.transitions[state]:
                 for otherState in afnd2.transitions[state][char]:
-                    afnd1.add_transition(state, otherState, char)
+                    afnd.add_transition(state, otherState, char)
 
-        afnd1.add_transition(list(afnd1.final_states)[0], afnd2.initial_state, SpecialSymbol.Lambda)
+        afnd.mark_initial_state(afnd1.initial_state)
+        afnd.add_transition(list(afnd1.final_states)[0], afnd2.initial_state, SpecialSymbol.Lambda)
 
-        afnd1.normalize_states()
+        afnd.normalize_states()
 
-        return afnd1
+        return afnd
 
     def _atomic(self):
         return False
@@ -161,31 +169,37 @@ class Union(RegEx):
     def to_afnd(self) -> AFND:
         afnd1 = self.exp1.to_afnd()
         afnd2 = self.exp2.to_afnd()
-
         afnd2.rename_states()
+
+        afnd = AFND()
+        for state in afnd1.states:
+            afnd.add_state(state, False)
+
+        for state in afnd1.transitions:
+            for char in afnd1.transitions[state]:
+                for otherState in afnd1.transitions[state][char]:
+                    afnd.add_transition(state, otherState, char)
+
         for state in afnd2.states:
-            afnd1.add_state(state, state in afnd2.final_states)
+            afnd.add_state(state, False)
 
         for state in afnd2.transitions:
             for char in afnd2.transitions[state]:
                 for otherState in afnd2.transitions[state][char]:
-                    afnd1.add_transition(state, otherState, char)
+                    afnd.add_transition(state, otherState, char)
 
-        afnd1.add_state("qi")
-        afnd1.add_state("qf")
+        afnd.add_state("qi", False)
+        afnd.add_state("qf", True)
+        afnd.mark_initial_state("qi")
 
-        afnd1.add_transition("qi", afnd1.initial_state, SpecialSymbol.Lambda)
-        afnd1.add_transition("qi", afnd2.initial_state, SpecialSymbol.Lambda)
-        afnd1.add_transition(list(afnd1.final_states)[0], "qf", SpecialSymbol.Lambda)
-        afnd1.add_transition(list(afnd2.final_states)[0], "qf", SpecialSymbol.Lambda)
+        afnd.add_transition("qi", afnd1.initial_state, SpecialSymbol.Lambda)
+        afnd.add_transition("qi", afnd2.initial_state, SpecialSymbol.Lambda)
+        afnd.add_transition(list(afnd1.final_states)[0], "qf", SpecialSymbol.Lambda)
+        afnd.add_transition(list(afnd2.final_states)[0], "qf", SpecialSymbol.Lambda)
 
-        afnd1.final_states = set()
-        afnd1.final_states.add("qf")
+        afnd.normalize_states()
 
-        afnd1.normalize_states()
-
-        return afnd1
-
+        return afnd
 
     def _atomic(self):
         return False
@@ -210,18 +224,25 @@ class Star(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        afnd = self.exp.to_afnd()
+        afnd1 = self.exp.to_afnd()
 
-        afnd.add_state("qi")
-        afnd.add_state("qf")
+        afnd = AFND()
+        for state in afnd1.states:
+            afnd.add_state(state, False)
 
-        afnd.add_transition("qi", afnd.initial_state, SpecialSymbol.Lambda)
-        afnd.add_transition(list(afnd.final_states)[0], "qf", SpecialSymbol.Lambda)
-        afnd.add_transition(list(afnd.final_states)[0], afnd.initial_state, SpecialSymbol.Lambda)
+        for state in afnd1.transitions:
+            for char in afnd1.transitions[state]:
+                for otherState in afnd1.transitions[state][char]:
+                    afnd.add_transition(state, otherState, char)
+
+        afnd.add_state("qi", False)
+        afnd.mark_initial_state("qi")
+        afnd.add_state("qf", True)
+
+        afnd.add_transition("qi", afnd1.initial_state, SpecialSymbol.Lambda)
+        afnd.add_transition(list(afnd1.final_states)[0], "qf", SpecialSymbol.Lambda)
+        afnd.add_transition(list(afnd1.final_states)[0], afnd1.initial_state, SpecialSymbol.Lambda)
         afnd.add_transition("qi", "qf", SpecialSymbol.Lambda)
-
-        afnd.final_states = set()
-        afnd.final_states.add("qf")
 
         afnd.normalize_states()
 
@@ -249,8 +270,6 @@ class Plus(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        # afnd1 = self.exp.to_afnd()
-        # afnd2 = afnd1.deepcopy()
         return Concat(self.exp, Star(self.exp)).to_afnd()
 
     def _atomic(self) -> bool:

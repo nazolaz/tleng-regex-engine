@@ -9,6 +9,7 @@ case_names = [
     basename(filename)[:-3]
     for filename in
     glob.glob(join(dirname(__file__), "regexes/*.py"))
+    # glob.glob(join(dirname(__file__), "regexes/r09.py"))
 ]
 case_names.sort()
 cases = []
