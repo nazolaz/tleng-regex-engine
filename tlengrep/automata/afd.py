@@ -51,9 +51,10 @@ class AFD(AF):
                     if otherState in accesible:
                         afd_accessible.add_transition(state, otherState, char)
 
-        P = set(frozenset())
-        P.add(frozenset(afd_accessible.final_states))
-        P.add(frozenset(afd_accessible.states.difference(afd_accessible.final_states)))
+        P = [
+            frozenset(afd_accessible.final_states),
+            frozenset(afd_accessible.states.difference(afd_accessible.final_states))
+        ]
         W = [afd_accessible.final_states]
 
         while len(W) != 0:
@@ -68,23 +69,30 @@ class AFD(AF):
                 for Y in P:
                     if len(X.intersection(Y)) != 0 and len(Y.difference(X)) != 0:
                         P.remove(Y)
-                        P.add(X.intersection(Y))
-                        P.add(Y.difference(X))
+                        P.append(X.intersection(Y))
+                        P.append(Y.difference(X))
 
                         if Y in W:
                             P.remove(Y)
-                            P.add(X.intersection(Y))
-                            P.add(Y.difference(X))
+                            P.append(X.intersection(Y))
+                            P.append(Y.difference(X))
                         else:
                             if len(X.intersection(Y)) <= len(Y.difference(X)):
                                 W.append(X.intersection(Y))
                             else:
                                 W.append(Y.difference(X))
 
+        P = set(P)
         P.discard(set())
 
         afdmin = AFD()
-        afdmin.states = P
+
+        for partition in P:
+            isFinal = False
+            for state in partition:
+                if state in afd_accessible.final_states:
+                    isFinal = True
+            afdmin.add_state(partition, isFinal)
 
         for partition in P:
             for state in partition:
@@ -100,12 +108,6 @@ class AFD(AF):
             if "q0" in partition:
                 afdmin.initial_state = partition
                 break # las particiones son disjuntas
-
-        for partition in P:
-            for state in partition:
-                if state in afd_accessible.final_states:
-                    afdmin.final_states.add(partition)
-                    break
 
         return afdmin
 
