@@ -68,12 +68,14 @@ class AFD(AF):
 
                 for Y in P:
                     if len(X.intersection(Y)) != 0 and len(Y.difference(X)) != 0:
-                        P.remove(Y)
+                        if Y in P:
+                            P.remove(Y)
                         P.append(X.intersection(Y))
                         P.append(Y.difference(X))
 
                         if Y in W:
-                            P.remove(Y)
+                            if Y in P:
+                                P.remove(Y)
                             P.append(X.intersection(Y))
                             P.append(Y.difference(X))
                         else:
