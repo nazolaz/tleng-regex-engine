@@ -38,9 +38,11 @@ class AFD(AF):
             accesible = accesible.union(new)   
                     
         afd_accessible = AFD()
-        afd_accessible.states = accesible
+
+        for state in accesible:
+            afd_accessible.add_state(state, state in self.final_states)
+
         afd_accessible.initial_state = self.initial_state
-        afd_accessible.final_states = self.final_states.intersection(accesible)
 
         for state in accesible:
             for char in self.alphabet:
@@ -79,7 +81,7 @@ class AFD(AF):
                             else:
                                 W.append(Y.difference(X))
 
-        P.remove(set())
+        P.discard(set())
 
         afdmin = AFD()
         afdmin.states = P
@@ -87,11 +89,12 @@ class AFD(AF):
         for partition in P:
             for state in partition:
                 for char in afd_accessible.alphabet:
-                    comingState = afd_accessible.transitions[state][char]
-                    for otherPartition in P:
-                        if comingState in otherPartition:
-                            afdmin.add_transition(partition, otherPartition, char)
-                            break # las particiones son disjuntas
+                    if state in afd_accessible.transitions and char in afd_accessible.transitions[state]:
+                        comingState = afd_accessible.transitions[state][char]
+                        for otherPartition in P:
+                            if comingState in otherPartition:
+                                afdmin.add_transition(partition, otherPartition, char)
+                                break # las particiones son disjuntas
         
         for partition in P:
             if "q0" in partition:

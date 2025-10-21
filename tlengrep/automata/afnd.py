@@ -54,7 +54,8 @@ class AFND(AF):
         accessible_states = set()
 
         for t in T:
-            accessible_states = accessible_states.union(self.transitions[t][char])
+            if char in self.transitions[t]:
+                accessible_states = accessible_states.union(self.transitions[t][char])
 
         return self.lambda_closure_palo(accessible_states)
 
