@@ -60,7 +60,9 @@ class AFND(AF):
     def determinize(self) -> AFD:
         """Determiniza el autómata."""
         afd = AFD()
-        nuevoInicial = self.lambda_closure_palo(self.initial_state)
+        conjuntoInicial = set()
+        conjuntoInicial.add(self.initial_state)
+        nuevoInicial = self.lambda_closure_palo(conjuntoInicial)
         strInicial = afd.add_set_as_state(nuevoInicial, len(nuevoInicial.intersection(self.final_states)) == 0)
         afd.mark_initial_state(strInicial)
 
