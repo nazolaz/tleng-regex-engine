@@ -37,7 +37,7 @@ class AFND(AF):
 
         if SpecialSymbol.Lambda in self.transitions[state]:
             for new_state in self.transitions[state][SpecialSymbol.Lambda]:
-                self.lambda_closure(new_state)
+                accessible_states = accessible_states.union(self.lambda_closure(new_state))
 
         return accessible_states
 
@@ -46,7 +46,7 @@ class AFND(AF):
 
         for state in K:
             self.visited = set()
-            accessible_states.union(self.lambda_closure(state))
+            accessible_states = accessible_states.union(self.lambda_closure(state))
 
         return accessible_states
 
@@ -54,7 +54,7 @@ class AFND(AF):
         accessible_states = set()
 
         for t in T:
-            accessible_states.union(self.transitions[t][char])
+            accessible_states = accessible_states.union(self.transitions[t][char])
 
         return self.lambda_closure_palo(accessible_states)
 
