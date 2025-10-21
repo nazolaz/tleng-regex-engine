@@ -96,7 +96,7 @@ class AFD(AF):
         for partition in P:
             if "q0" in partition:
                 afdmin.initial_state = partition
-                break
+                break # las particiones son disjuntas
 
         for partition in P:
             for state in partition:
@@ -112,7 +112,7 @@ class AFD(AF):
     def match_from(self, state: str, word: str) -> bool:
         if len(word) == 0:
             return state in self.final_states
-        if word[0] in self.transitions[state]:
+        if state in self.transitions and word[0] in self.transitions[state]:
             return self.match_from(self.transitions[state][word[0]], word[1:])
         return False
 

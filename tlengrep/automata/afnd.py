@@ -64,7 +64,7 @@ class AFND(AF):
         conjuntoInicial = set()
         conjuntoInicial.add(self.initial_state)
         nuevoInicial = self.lambda_closure_palo(conjuntoInicial)
-        strInicial = afd.add_set_as_state(nuevoInicial, len(nuevoInicial.intersection(self.final_states)) == 0)
+        strInicial = afd.add_set_as_state(nuevoInicial, len(nuevoInicial.intersection(self.final_states)) != 0)
         afd.mark_initial_state(strInicial)
 
         Qp = [nuevoInicial]
@@ -79,8 +79,8 @@ class AFND(AF):
                     Qp.append(U)
 
                 afd.add_transition(
-                    afd.add_set_as_state(T, len(T.intersection(self.final_states)) == 0),
-                    afd.add_set_as_state(U, len(U.intersection(self.final_states)) == 0),
+                    afd.add_set_as_state(T, len(T.intersection(self.final_states)) != 0),
+                    afd.add_set_as_state(U, len(U.intersection(self.final_states)) != 0),
                     char
                 )
 
