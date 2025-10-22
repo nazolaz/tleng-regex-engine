@@ -107,7 +107,7 @@ class AFD(AF):
                                 break # las particiones son disjuntas
         
         for partition in P:
-            if "q0" in partition:
+            if self.initial_state in partition:
                 afdmin.initial_state = partition
                 break # las particiones son disjuntas
 
