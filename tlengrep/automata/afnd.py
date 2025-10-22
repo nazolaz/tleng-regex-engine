@@ -99,9 +99,11 @@ class AFND(AF):
                     self.transitions[state][char].add(new_name)
 
     def rename_states(self):
+        i = 0
         for state in self.states:
-            newState = "p" + state[1:]
+            newState = "p" + str(i)
             self._rename_state(state, newState)
+            i += 1
 
     def _get_extended_alphabet(self) -> list[str]:
         """Obtiene el alfabeto extendido del autómata (incluyendo símbolos especiales)."""

@@ -129,7 +129,6 @@ class AFD(AF):
         if len(self.final_states) == 0:
             afnd.add_state("qf", True)
 
-        afnd.normalize_states()
         return afnd
 
     def match(self, word: str) -> bool:
