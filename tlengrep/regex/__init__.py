@@ -16,6 +16,10 @@ __all__ = [
 
 class RegEx(ABC):
     """Clase abstracta para representar expresiones regulares."""
+    def __init__(self): #nos podriamos quedar con uno de los dos atributos, dejo los dos por ahora
+        self._afd = self.to_afnd().determinize().minimize() 
+        self._afnd = self._afd.to_afnd() 
+
     @abstractmethod
     def naive_match(self, word: str) -> bool:
         """
@@ -26,7 +30,7 @@ class RegEx(ABC):
 
     def match(self, word: str) -> bool:
         """Indica si la expresión regular acepta la cadena dada."""
-        return self.to_afnd().determinize().minimize().match(word)
+        return self._afd.match(word)
 
     @abstractmethod
     def to_afnd(self) -> AFND:
@@ -87,6 +91,7 @@ class Char(RegEx):
     def __init__(self, char: str):
         assert len(char) == 1
         self.char = char
+        super().__init__()
 
     def naive_match(self, word: str):
         return word == self.char
@@ -112,6 +117,7 @@ class Concat(RegEx):
     def __init__(self, exp1: RegEx, exp2: RegEx):
         self.exp1 = exp1
         self.exp2 = exp2
+        super().__init__()
 
     def naive_match(self, word: str):
         for i in range(len(word) + 1):
@@ -120,8 +126,8 @@ class Concat(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        afnd1 = self.exp1.to_afnd().determinize().minimize().to_afnd()
-        afnd2 = self.exp2.to_afnd().determinize().minimize().to_afnd()
+        afnd1 = self.exp1._afnd  
+        afnd2 = self.exp2._afnd
         afnd2.rename_states()
         
         afnd = AFND()
@@ -162,13 +168,14 @@ class Union(RegEx):
     def __init__(self, exp1: RegEx, exp2: RegEx):
         self.exp1 = exp1
         self.exp2 = exp2
+        super().__init__()
 
     def naive_match(self, word: str):
         return self.exp1.naive_match(word) or self.exp2.naive_match(word)
 
     def to_afnd(self) -> AFND:
-        afnd1 = self.exp1.to_afnd().determinize().minimize().to_afnd()
-        afnd2 = self.exp2.to_afnd().determinize().minimize().to_afnd()
+        afnd1 = self.exp1._afnd
+        afnd2 = self.exp2._afnd
         afnd2.rename_states()
 
         afnd = AFND()
@@ -214,6 +221,7 @@ class Star(RegEx):
 
     def __init__(self, exp: RegEx):
         self.exp = exp
+        super().__init__()
 
     def naive_match(self, word: str):
         if word == "" or self.exp.naive_match(word):
@@ -224,7 +232,7 @@ class Star(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        afnd1 = self.exp.to_afnd().determinize().minimize().to_afnd()
+        afnd1 = self.exp._afnd
 
         afnd = AFND()
         for state in afnd1.states:
@@ -260,6 +268,7 @@ class Plus(RegEx):
 
     def __init__(self, exp: RegEx):
         self.exp = exp
+        super().__init__()
 
     def naive_match(self, word: str):
         if self.exp.naive_match(word):
