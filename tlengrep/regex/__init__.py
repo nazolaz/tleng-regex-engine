@@ -120,8 +120,8 @@ class Concat(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        afnd1 = self.exp1.to_afnd()
-        afnd2 = self.exp2.to_afnd()
+        afnd1 = self.exp1.to_afnd().determinize().minimize().to_afnd()
+        afnd2 = self.exp2.to_afnd().determinize().minimize().to_afnd()
         afnd2.rename_states()
         
         afnd = AFND()
@@ -167,8 +167,8 @@ class Union(RegEx):
         return self.exp1.naive_match(word) or self.exp2.naive_match(word)
 
     def to_afnd(self) -> AFND:
-        afnd1 = self.exp1.to_afnd()
-        afnd2 = self.exp2.to_afnd()
+        afnd1 = self.exp1.to_afnd().determinize().minimize().to_afnd()
+        afnd2 = self.exp2.to_afnd().determinize().minimize().to_afnd()
         afnd2.rename_states()
 
         afnd = AFND()
@@ -224,7 +224,7 @@ class Star(RegEx):
         return False
 
     def to_afnd(self) -> AFND:
-        afnd1 = self.exp.to_afnd()
+        afnd1 = self.exp.to_afnd().determinize().minimize().to_afnd()
 
         afnd = AFND()
         for state in afnd1.states:

@@ -113,6 +113,25 @@ class AFD(AF):
 
         return afdmin
 
+    def to_afnd(self):
+        from automata.afnd import AFND
+        afnd = AFND()
+
+        for state in self.states:
+            afnd.add_state(state, state in self.final_states)
+
+        afnd.mark_initial_state(self.initial_state)
+
+        for state in self.transitions:
+            for char in self.transitions[state]:
+                afnd.add_transition(state, self.transitions[state][char], char)
+
+        if len(self.final_states) == 0:
+            afnd.add_state("qf", True)
+
+        afnd.normalize_states()
+        return afnd
+
     def match(self, word: str) -> bool:
         return self.match_from(self.initial_state, word)
 
