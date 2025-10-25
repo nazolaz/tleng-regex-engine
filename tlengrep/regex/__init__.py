@@ -176,7 +176,7 @@ class Union(RegEx):
 
     def to_afnd(self) -> AFND:
         afnd1 = self.exp1._afnd
-        afnd2 = self.exp2._afd.to_afnd()
+        afnd2 = self.exp2._afnd
         afnd2.normalize_states()
         afnd2.rename_states()
 
