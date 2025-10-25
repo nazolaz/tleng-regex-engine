@@ -24,32 +24,7 @@ class AFD(AF):
 
     def minimize(self):
         """Minimiza el autómata."""
-        accesible = set()
-        accesible.add(self.initial_state)
-        new = set()
-        new.add(self.initial_state)
-        while len(new) != 0:
-            temp = set()
-            for q in new:
-                for c in self.alphabet:
-                    if c in self.transitions[q]:
-                        temp.add(self.transitions[q][c])
-            new = temp.difference(accesible)
-            accesible = accesible.union(new)   
-                    
-        afd_accessible = AFD()
-
-        for state in accesible:
-            afd_accessible.add_state(state, state in self.final_states)
-
-        afd_accessible.initial_state = self.initial_state
-
-        for state in accesible:
-            for char in self.alphabet:
-                if state in self.transitions and char in self.transitions[state]:
-                    otherState = self.transitions[state][char]
-                    if otherState in accesible:
-                        afd_accessible.add_transition(state, otherState, char)
+        afd_accessible = self.without_inaccesibles()
 
         P = [
             frozenset(afd_accessible.final_states),
@@ -112,6 +87,35 @@ class AFD(AF):
                 break # las particiones son disjuntas
 
         return afdmin
+
+    def without_inaccesibles(self):
+        accesible = set()
+        accesible.add(self.initial_state)
+        new = set()
+        new.add(self.initial_state)
+        while len(new) != 0:
+            temp = set()
+            for q in new:
+                for c in self.alphabet:
+                    if c in self.transitions[q]:
+                        temp.add(self.transitions[q][c])
+            new = temp.difference(accesible)
+            accesible = accesible.union(new)   
+                    
+        afd_accessible = AFD()
+
+        for state in accesible:
+            afd_accessible.add_state(state, state in self.final_states)
+
+        afd_accessible.initial_state = self.initial_state
+
+        for state in accesible:
+            for char in self.alphabet:
+                if state in self.transitions and char in self.transitions[state]:
+                    otherState = self.transitions[state][char]
+                    if otherState in accesible:
+                        afd_accessible.add_transition(state, otherState, char)
+        return afd_accessible
 
     def to_afnd(self):
         from automata.afnd import AFND
