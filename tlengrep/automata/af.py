@@ -49,6 +49,10 @@ class AF(ABC):
         for state in anotherAF.states:
             self.add_state(state, False)
 
+    def copy_states(self, anotherAF):
+        for state in anotherAF.states:
+            self.add_state(state, state in anotherAF.final_states)
+
     def normalize_states(self):
         """
         Normaliza los nombres de los estados según la convención q0, q1, q2, ...

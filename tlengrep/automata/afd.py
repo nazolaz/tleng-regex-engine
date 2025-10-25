@@ -121,8 +121,7 @@ class AFD(AF):
         from automata.afnd import AFND
         afnd = AFND()
 
-        for state in self.states:
-            afnd.add_state(state, state in self.final_states)
+        afnd.copy_states(self)
 
         afnd.mark_initial_state(self.initial_state)
 

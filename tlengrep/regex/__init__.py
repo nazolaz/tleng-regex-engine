@@ -136,8 +136,7 @@ class Concat(RegEx):
         afnd.copy_states_as_not_final(afnd1)
         afnd.copy_transitions(afnd1)
 
-        for state in afnd2.states:
-            afnd.add_state(state, state in afnd2.final_states)
+        afnd.copy_states(afnd2)
         afnd.copy_transitions(afnd2)
 
         afnd.mark_initial_state(afnd1.initial_state)
