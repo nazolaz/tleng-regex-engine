@@ -17,7 +17,7 @@ class AFD(AF):
         self.alphabet.add(char)
 
     def add_set_as_state(self, stateSet, isFinal):
-        setString = ''.join(stateSet)
+        setString = ''.join(sorted(stateSet))
         if not (setString in self.states):
             self.add_state(setString, isFinal)
         return setString
