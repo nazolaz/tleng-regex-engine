@@ -1,0 +1,27 @@
+\section{Decisiones de diseño}
+Al inicializar la clase \texttt{RegEx} generamos su AFD mínimo respectivo 
+y lo guardamos en un nuevo atributo llamado \texttt{\_afd} para luego al hacer cada 
+\texttt{match} poder usarlo y no tener que generarlo cada vez.
+
+Para varios de los algoritmos que implementamos decidimos usar los sets de Python. Aunque estos sets tienen limitaciones,
+especificamente que no se pueden crear sets de sets, y que no se puede iterar un set y agregar o sacar valores en el medio de la
+iteración, por esto utilizamos cuando es necesario los frozensets, conjuntos cuyos elementos no son modificables.
+
+- no modificamos automatas en determinizar y minimizar, sino que creamos nuevos y los retornamos
+
+\section{Eleccion de algoritmos}
+Al generar el AFND a partir de la expresión regular utilizamos el algoritmo de Thompson basandonos 
+en la inducción del teorema visto en clase. Se puede decir que en la implementación extendemos el invariante 
+con tener los estados del autómata normalizados en cada paso.
+
+Para hacer la minimización, vimos en clase los algoritmos de Moore, Brzozowski y de Hopcroft. 
+De estos usamos el de Hopcroft porque tiene la mejor complejidad temporal, $O(ns \log{n})$ 
+y porque se basa en hacer operaciones entre conjuntos, las cuales ya tenemos implementadas con los sets de Python.
+Este algoritmo requiere que el autómata no tenga estados accesibles, por lo tanto agregamos un método \texttt{minimize}  
+a la clase AFD que primero crea un autómata equivalente sin estados inaccesibles y luego aplica al algoritmo de Hopcroft sobre el mismo.
+
+\section{Benchmarks y eficiencia}
+
+\section{Cambios posibles}
+- sort estados con counting sort
+- agregar estados $n^2$ a n

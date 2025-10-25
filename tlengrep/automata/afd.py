@@ -138,11 +138,17 @@ class AFD(AF):
         return self.match_from(self.initial_state, word)
 
     def match_from(self, state: str, word: str) -> bool:
-        if len(word) == 0:
-            return state in self.final_states
-        if state in self.transitions and word[0] in self.transitions[state]:
-            return self.match_from(self.transitions[state][word[0]], word[1:])
-        return False
+        curr_state = state
+        curr_word = word
+
+        while len(curr_word) != 0:
+            if curr_state in self.transitions and curr_word[0] in self.transitions[curr_state]:
+                curr_state = self.transitions[curr_state][curr_word[0]]
+                curr_word = curr_word[1:]
+            else:
+                return False
+
+        return curr_state in self.final_states
 
     def _rename_state_in_transitions(self, old_name: Hashable, new_name: Hashable):
         """Renombra un estado dentro de las transiciones del autómata."""
