@@ -45,7 +45,7 @@ class AF(ABC):
                 for otherState in anotherAF.transitions[state][char]:
                     self.add_transition(state, otherState, char)
 
-    def copy_non_final_states(self, anotherAF):
+    def copy_states_as_not_final(self, anotherAF):
         for state in anotherAF.states:
             self.add_state(state, False)
 

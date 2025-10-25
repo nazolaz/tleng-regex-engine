@@ -132,21 +132,13 @@ class Concat(RegEx):
         afnd2.rename_states()
 
         afnd = AFND()
-        for state in afnd1.states:
-            afnd.add_state(state, False)
-
-        for state in afnd1.transitions:
-            for char in afnd1.transitions[state]:
-                for otherState in afnd1.transitions[state][char]:
-                    afnd.add_transition(state, otherState, char)
+    
+        afnd.copy_states_as_not_final(afnd1)
+        afnd.copy_transitions(afnd1)
 
         for state in afnd2.states:
-            afnd.add_state(state, state in afnd2.final_states) # n^2
-
-        for state in afnd2.transitions:
-            for char in afnd2.transitions[state]:
-                for otherState in afnd2.transitions[state][char]:
-                    afnd.add_transition(state, otherState, char)
+            afnd.add_state(state, state in afnd2.final_states)
+        afnd.copy_transitions(afnd2)
 
         afnd.mark_initial_state(afnd1.initial_state)
         afnd.add_transition(list(afnd1.final_states)[0], afnd2.initial_state, SpecialSymbol.Lambda)
@@ -181,10 +173,10 @@ class Union(RegEx):
         afnd2.rename_states()
 
         afnd = AFND()
-        afnd.copy_non_final_states(afnd1)
+        afnd.copy_states_as_not_final(afnd1)
         afnd.copy_transitions(afnd1)     
    
-        afnd.copy_non_final_states(afnd2)
+        afnd.copy_states_as_not_final(afnd2)
         afnd.copy_transitions(afnd2)
 
         afnd.add_state("qi", False)
@@ -227,13 +219,8 @@ class Star(RegEx):
         afnd1 = self.exp._afnd
 
         afnd = AFND()
-        for state in afnd1.states:
-            afnd.add_state(state, False)
-
-        for state in afnd1.transitions:
-            for char in afnd1.transitions[state]:
-                for otherState in afnd1.transitions[state][char]:
-                    afnd.add_transition(state, otherState, char)
+        afnd.copy_states_as_not_final(afnd1)
+        afnd.copy_transitions(afnd1)
 
         afnd.add_state("qi", False)
         afnd.mark_initial_state("qi")
