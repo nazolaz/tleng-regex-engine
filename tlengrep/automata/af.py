@@ -45,6 +45,10 @@ class AF(ABC):
                 for otherState in anotherAF.transitions[state][char]:
                     self.add_transition(state, otherState, char)
 
+    def copy_non_final_states(self, anotherAF):
+        for state in anotherAF.states:
+            self.add_state(state, False)
+
     def normalize_states(self):
         """
         Normaliza los nombres de los estados según la convención q0, q1, q2, ...

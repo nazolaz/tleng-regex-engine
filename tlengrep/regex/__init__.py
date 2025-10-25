@@ -181,12 +181,10 @@ class Union(RegEx):
         afnd2.rename_states()
 
         afnd = AFND()
-        for state in afnd1.states:
-            afnd.add_state(state, False)
-        for state in afnd2.states:
-            afnd.add_state(state, False)
-
-        afnd.copy_transitions(afnd1)
+        afnd.copy_non_final_states(afnd1)
+        afnd.copy_transitions(afnd1)     
+   
+        afnd.copy_non_final_states(afnd2)
         afnd.copy_transitions(afnd2)
 
         afnd.add_state("qi", False)
