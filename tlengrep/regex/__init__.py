@@ -183,19 +183,11 @@ class Union(RegEx):
         afnd = AFND()
         for state in afnd1.states:
             afnd.add_state(state, False)
-
-        for state in afnd1.transitions:
-            for char in afnd1.transitions[state]:
-                for otherState in afnd1.transitions[state][char]:
-                    afnd.add_transition(state, otherState, char)
-
         for state in afnd2.states:
             afnd.add_state(state, False)
 
-        for state in afnd2.transitions:
-            for char in afnd2.transitions[state]:
-                for otherState in afnd2.transitions[state][char]:
-                    afnd.add_transition(state, otherState, char)
+        afnd.copy_transitions(afnd1)
+        afnd.copy_transitions(afnd2)
 
         afnd.add_state("qi", False)
         afnd.add_state("qf", True)

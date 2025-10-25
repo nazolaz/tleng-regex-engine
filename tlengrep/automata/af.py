@@ -39,6 +39,12 @@ class AF(ABC):
             raise ValueError(f"El estado {state} no pertenece al autómata.")
         self.initial_state = state
 
+    def copy_transitions(self, anotherAF):
+        for state in anotherAF.transitions:
+            for char in anotherAF.transitions[state]:
+                for otherState in anotherAF.transitions[state][char]:
+                    self.add_transition(state, otherState, char)
+
     def normalize_states(self):
         """
         Normaliza los nombres de los estados según la convención q0, q1, q2, ...
